@@ -1,19 +1,14 @@
 package com.rainer.cloudmail.product.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.rainer.cloudmail.product.entity.CategoryEntity;
 import com.rainer.cloudmail.product.service.CategoryService;
 import com.rainer.common.utils.PageUtils;
 import com.rainer.common.utils.Result;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 
 
@@ -27,18 +22,19 @@ import com.rainer.common.utils.Result;
 @RestController
 @RequestMapping("product/category")
 public class CategoryController {
-    @Autowired
-    private CategoryService categoryService;
+    private final CategoryService categoryService;
+
+    public CategoryController(CategoryService categoryService) {
+        this.categoryService = categoryService;
+    }
 
     /**
-     * 列表
+     * 查出所有分类及其子分类信息，以树形结构组装起来
      */
-    @RequestMapping("/list")
-//    @RequiresPermissions("product:category:list")
-    public Result list(@RequestParam Map<String, Object> params){
-        PageUtils page = categoryService.queryPage(params);
-
-        return Result.ok().put("page", page);
+    @RequestMapping("/list/tree")
+    public Result list(){
+        List<CategoryEntity> categoryEntities = categoryService.listWithTree();
+        return Result.ok().put("data", categoryEntities);
     }
 
 
