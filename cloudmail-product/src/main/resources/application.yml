@@ -3,7 +3,7 @@ spring:
     name: cloudmail-product
   datasource: # 配置 MySQL 数据源
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:123546}
+    password: ${DB_PASSWORD:123456}
     url: jdbc:mysql://${DB_HOST:localhost}:3306/cloudmail_pms?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
     driver-class-name: com.mysql.cj.jdbc.Driver
   cloud:
@@ -18,9 +18,10 @@ spring:
         username: nacos
         password: nacos
         namespace: f64498e5-740a-4dac-972d-22597d7dc2c1
-  config:
-    import:
-      - nacos:cloudmail-product.yml?refreshEnabled=true
+        enabled: false
+#  config:
+#    import:
+#      - nacos:cloudmail-product.yml?refreshEnabled=true
 server:
   port: 13000
 mybatis-plus:

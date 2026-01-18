@@ -1,19 +1,15 @@
 package com.rainer.cloudmail.product.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import com.rainer.cloudmail.product.entity.CategoryEntity;
+import com.rainer.cloudmail.product.service.CategoryService;
+import com.rainer.common.utils.Result;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.rainer.cloudmail.product.entity.CategoryEntity;
-import com.rainer.cloudmail.product.service.CategoryService;
-import com.rainer.common.utils.PageUtils;
-import com.rainer.common.utils.Result;
+import java.util.Arrays;
+import java.util.List;
 
 
 
@@ -27,18 +23,19 @@ import com.rainer.common.utils.Result;
 @RestController
 @RequestMapping("product/category")
 public class CategoryController {
-    @Autowired
-    private CategoryService categoryService;
+    private final CategoryService categoryService;
+
+    public CategoryController(CategoryService categoryService) {
+        this.categoryService = categoryService;
+    }
 
     /**
-     * 列表
+     * 查出所有分类及其子分类信息，以树形结构组装起来
      */
-    @RequestMapping("/list")
-//    @RequiresPermissions("product:category:list")
-    public Result list(@RequestParam Map<String, Object> params){
-        PageUtils page = categoryService.queryPage(params);
-
-        return Result.ok().put("page", page);
+    @RequestMapping("/list/tree")
+    public Result list(){
+        List<CategoryEntity> categoryEntities = categoryService.listWithTree();
+        return Result.ok().put("data", categoryEntities);
     }
 
 
@@ -46,21 +43,17 @@ public class CategoryController {
      * 信息
      */
     @RequestMapping("/info/{catId}")
-//    @RequiresPermissions("product:category:info")
     public Result info(@PathVariable("catId") Long catId){
 		CategoryEntity category = categoryService.getById(catId);
-
-        return Result.ok().put("category", category);
+        return Result.ok().put("data", category);
     }
 
     /**
      * 保存
      */
     @RequestMapping("/save")
-//    @RequiresPermissions("product:category:save")
     public Result save(@RequestBody CategoryEntity category){
 		categoryService.save(category);
-
         return Result.ok();
     }
 
@@ -71,7 +64,15 @@ public class CategoryController {
 //    @RequiresPermissions("product:category:update")
     public Result update(@RequestBody CategoryEntity category){
 		categoryService.updateById(category);
+        return Result.ok();
+    }
 
+    /**
+     * 批量修改
+     */
+    @RequestMapping("/update/batch")
+    public Result updateBatch(@RequestBody CategoryEntity[] categoryEntities) {
+        categoryService.updateBatchById(Arrays.asList(categoryEntities));
         return Result.ok();
     }
 
@@ -79,10 +80,8 @@ public class CategoryController {
      * 删除
      */
     @RequestMapping("/delete")
-//    @RequiresPermissions("product:category:delete")
     public Result delete(@RequestBody Long[] catIds){
-		categoryService.removeByIds(Arrays.asList(catIds));
-
+		categoryService.removeMenusByIds(Arrays.asList(catIds));
         return Result.ok();
     }
 

@@ -3,7 +3,7 @@ spring:
     name: cloudmail-member
   datasource: # 配置 MySQL 数据源
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:123546}
+    password: ${DB_PASSWORD:123456}
     url: jdbc:mysql://${DB_HOST:localhost}:3306/cloudmail_ums?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
     driver-class-name: com.mysql.cj.jdbc.Driver
   cloud:
