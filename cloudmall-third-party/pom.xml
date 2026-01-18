@@ -52,6 +52,11 @@
 			<groupId>org.glassfish.jaxb</groupId>
 			<artifactId>jaxb-runtime</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>com.aliyun</groupId>
+			<artifactId>sts20150401</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

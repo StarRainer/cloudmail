@@ -41,6 +41,10 @@
         <spring-cloud.version>2023.0.3</spring-cloud.version>
         <spring-cloud-alibaba.version>2023.0.1.2</spring-cloud-alibaba.version>
         <aliyun-sdk-oss.version>3.17.4</aliyun-sdk-oss.version>
+        <jaxb-api.version>2.3.1</jaxb-api.version>
+        <sts20150401.version>1.1.6</sts20150401.version>
+        <jaxb-runtime.version>2.3.3</jaxb-runtime.version>
+        <activation.version>1.1.1</activation.version>
     </properties>
 
     <dependencies>
@@ -98,19 +102,25 @@
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
-                <version>2.3.1</version>
+                <version>${jaxb-api.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>javax.activation</groupId>
                 <artifactId>activation</artifactId>
-                <version>1.1.1</version>
+                <version>${activation.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-runtime</artifactId>
-                <version>2.3.3</version>
+                <version>${jaxb-runtime.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>sts20150401</artifactId>
+                <version>${sts20150401.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -21,6 +21,10 @@ server:
   port: 16000
 alibaba:
   cloud:
-    access-key: ${ALIYUN_ACCESS_KEY}
-    secret-key: ${ALIYUN_SECRET_KEY}
-    endpoint: ${ALIYUN_OSS_ENDPOINT:oss-cn-beijing.aliyuncs.com}
+    access-key-id: ${ALIYUN_ACCESS_KEY}
+    access-key-secret: ${ALIYUN_SECRET_KEY}
+    endpoint: sts.cn-beijing.aliyuncs.com
+    role-arn: ${OSS_STS_ROLE_ARN}
+    bucket: cloudmall-project
+    expire-time: 120
+    region: cn-beijing

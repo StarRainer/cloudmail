@@ -31,8 +31,3 @@ mybatis-plus:
       id-type: auto # 表的主键为自增主键
   configuration:
     map-underscore-to-camel-case: true # 开启驼峰命名转换
-alibaba:
-  cloud:
-    access-key: ${ALIYUN_ACCESS_KEY}
-    secret-key: ${ALIYUN_SECRET_KEY}
-    endpoint: ${ALIYUN_OSS_ENDPOINT:oss-cn-beijing.aliyuncs.com}
