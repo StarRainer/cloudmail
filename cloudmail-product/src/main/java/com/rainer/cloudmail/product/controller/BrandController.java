@@ -1,19 +1,13 @@
 package com.rainer.cloudmail.product.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import com.rainer.common.utils.Result;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.rainer.cloudmail.product.entity.BrandEntity;
 import com.rainer.cloudmail.product.service.BrandService;
 import com.rainer.common.utils.PageUtils;
+import com.rainer.common.utils.Result;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Map;
 
 
 /**
@@ -26,8 +20,11 @@ import com.rainer.common.utils.PageUtils;
 @RestController
 @RequestMapping("product/brand")
 public class BrandController {
-    @Autowired
-    private BrandService brandService;
+    private final BrandService brandService;
+
+    public BrandController(BrandService brandService) {
+        this.brandService = brandService;
+    }
 
     /**
      * 列表
@@ -67,10 +64,8 @@ public class BrandController {
      * 修改
      */
     @RequestMapping("/update")
-//    @RequiresPermissions("product:brand:update")
     public Result update(@RequestBody BrandEntity brand){
 		brandService.updateById(brand);
-
         return Result.ok();
     }
 

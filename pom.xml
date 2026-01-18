@@ -39,6 +39,7 @@
         <spring-boot.version>3.2.11</spring-boot.version>
         <spring-cloud.version>2023.0.3</spring-cloud.version>
         <spring-cloud-alibaba.version>2023.0.1.2</spring-cloud-alibaba.version>
+        <aliyun.oss.version>3.17.4</aliyun.oss.version>
     </properties>
 
     <dependencyManagement>
