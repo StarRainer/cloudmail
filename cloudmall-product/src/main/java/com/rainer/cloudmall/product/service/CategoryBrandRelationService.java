@@ -1,10 +1,15 @@
 package com.rainer.cloudmall.product.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.rainer.cloudmall.common.utils.PageUtils;
+import com.rainer.cloudmall.common.exception.valid.AddGroup;
+import com.rainer.cloudmall.common.exception.valid.UpdateGroup;
 import com.rainer.cloudmall.product.entity.CategoryBrandRelationEntity;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.Pattern;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * 品牌分类关联
@@ -15,6 +20,12 @@ import java.util.Map;
  */
 public interface CategoryBrandRelationService extends IService<CategoryBrandRelationEntity> {
 
-    PageUtils queryPage(Map<String, Object> params);
+    List<CategoryBrandRelationEntity> listCateLog(Long brandId);
+
+    void saveDetail(CategoryBrandRelationEntity categoryBrandRelation);
+
+    void updateBrand(Long brandId, String name);
+
+    void updateCategory(Long catId, String name);
 }
 

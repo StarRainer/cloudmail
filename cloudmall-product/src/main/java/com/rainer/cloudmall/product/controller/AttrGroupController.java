@@ -1,19 +1,14 @@
 package com.rainer.cloudmall.product.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
+import com.rainer.cloudmall.common.utils.PageUtils;
 import com.rainer.cloudmall.common.utils.Result;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.rainer.cloudmall.product.entity.AttrGroupEntity;
 import com.rainer.cloudmall.product.service.AttrGroupService;
-import com.rainer.cloudmall.common.utils.PageUtils;
+import com.rainer.cloudmall.product.service.CategoryService;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Map;
 
 
 /**
@@ -26,37 +21,38 @@ import com.rainer.cloudmall.common.utils.PageUtils;
 @RestController
 @RequestMapping("product/attrgroup")
 public class AttrGroupController {
-    @Autowired
-    private AttrGroupService attrGroupService;
+    private final AttrGroupService attrGroupService;
+
+    private final CategoryService categoryService;
+
+    public AttrGroupController(AttrGroupService attrGroupService, CategoryService categoryService) {
+        this.attrGroupService = attrGroupService;
+        this.categoryService = categoryService;
+    }
 
     /**
      * 列表
      */
-    @RequestMapping("/list")
-//    @RequiresPermissions("product:attrgroup:list")
-    public Result list(@RequestParam Map<String, Object> params){
-        PageUtils page = attrGroupService.queryPage(params);
-
-        return Result.ok().put("page", page);
+    @GetMapping("/list/{catelogId}")
+    public Result list(@RequestParam Map<String, Object> params, @PathVariable("catelogId") Long catelogId) {
+        return Result.ok().put("page", attrGroupService.queryPage(params, catelogId));
     }
 
 
     /**
      * 信息
      */
-    @RequestMapping("/info/{attrGroupId}")
-//    @RequiresPermissions("product:attrgroup:info")
+    @GetMapping("/info/{attrGroupId}")
     public Result info(@PathVariable("attrGroupId") Long attrGroupId){
 		AttrGroupEntity attrGroup = attrGroupService.getById(attrGroupId);
-
+        attrGroup.setCatelogPath(categoryService.getPathLink(attrGroup.getCatelogId()));
         return Result.ok().put("attrGroup", attrGroup);
     }
 
     /**
      * 保存
      */
-    @RequestMapping("/save")
-//    @RequiresPermissions("product:attrgroup:save")
+    @PostMapping("/save")
     public Result save(@RequestBody AttrGroupEntity attrGroup){
 		attrGroupService.save(attrGroup);
 
@@ -66,8 +62,7 @@ public class AttrGroupController {
     /**
      * 修改
      */
-    @RequestMapping("/update")
-//    @RequiresPermissions("product:attrgroup:update")
+    @PutMapping("/update")
     public Result update(@RequestBody AttrGroupEntity attrGroup){
 		attrGroupService.updateById(attrGroup);
 
@@ -77,8 +72,7 @@ public class AttrGroupController {
     /**
      * 删除
      */
-    @RequestMapping("/delete")
-//    @RequiresPermissions("product:attrgroup:delete")
+    @DeleteMapping("/delete")
     public Result delete(@RequestBody Long[] attrGroupIds){
 		attrGroupService.removeByIds(Arrays.asList(attrGroupIds));
 

@@ -4,7 +4,6 @@ import com.rainer.cloudmall.common.exception.valid.AddGroup;
 import com.rainer.cloudmall.common.exception.valid.UpdateGroup;
 import com.rainer.cloudmall.product.entity.BrandEntity;
 import com.rainer.cloudmall.product.service.BrandService;
-import com.rainer.cloudmall.common.utils.PageUtils;
 import com.rainer.cloudmall.common.utils.Result;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -32,18 +31,16 @@ public class BrandController {
     /**
      * 列表
      */
-    @RequestMapping("/list")
+    @GetMapping("/list")
     public Result list(@RequestParam Map<String, Object> params){
-        PageUtils page = brandService.queryPage(params);
-
-        return Result.ok().put("page", page);
+        return Result.ok().put("page", brandService.queryPage(params));
     }
 
 
     /**
      * 信息
      */
-    @RequestMapping("/info/{brandId}")
+    @GetMapping("/info/{brandId}")
     public Result info(@PathVariable("brandId") Long brandId){
 		BrandEntity brand = brandService.getById(brandId);
 
@@ -53,7 +50,7 @@ public class BrandController {
     /**
      * 保存
      */
-    @RequestMapping("/save")
+    @PostMapping("/save")
     public Result save(@Validated(AddGroup.class) @RequestBody BrandEntity brand){
 		brandService.save(brand);
 
@@ -63,16 +60,16 @@ public class BrandController {
     /**
      * 修改
      */
-    @RequestMapping("/update")
+    @PutMapping("/update")
     public Result update(@Validated(UpdateGroup.class) @RequestBody BrandEntity brand){
-		brandService.updateById(brand);
+		brandService.updateCascade(brand);
         return Result.ok();
     }
 
     /**
      * 删除
      */
-    @RequestMapping("/delete")
+    @DeleteMapping("/delete")
     public Result delete(@RequestBody Long[] brandIds){
 		brandService.removeByIds(Arrays.asList(brandIds));
 
