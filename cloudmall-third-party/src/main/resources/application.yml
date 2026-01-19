@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: cloudmall-third-party
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:8848}
+        username: nacos
+        password: nacos
+        namespace: f64498e5-740a-4dac-972d-22597d7dc2c1
+      config:
+        server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:8848}
+        username: nacos
+        password: nacos
+        namespace: f64498e5-740a-4dac-972d-22597d7dc2c1
+        enabled: false
+#  config:
+#    import:
+#      - nacos:cloudmall-product.yml?refreshEnabled=true
+server:
+  port: 16000
+alibaba:
+  cloud:
+    access-key-id: ${ALIYUN_ACCESS_KEY}
+    access-key-secret: ${ALIYUN_SECRET_KEY}
+    endpoint: sts.cn-beijing.aliyuncs.com
+    role-arn: ${OSS_STS_ROLE_ARN}
+    bucket: cloudmall-project
+    expire-time: 120
+    region: cn-beijing

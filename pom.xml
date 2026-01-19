@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.rainer.cloudmail</groupId>
-    <artifactId>cloudmail</artifactId>
+    <groupId>com.rainer.cloudmall</groupId>
+    <artifactId>cloudmall</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>cloudmail</name>
+    <name>cloudmall</name>
     <description>Composite Service</description>
     <packaging>pom</packaging>
-    <url>https://github.com/StarRainer/cloudmail</url>
+    <url>https://github.com/StarRainer/cloudmall</url>
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -18,15 +18,16 @@
     </licenses>
 
     <modules>
-        <module>cloudmail-coupon</module>
-        <module>cloudmail-member</module>
-        <module>cloudmail-order</module>
-        <module>cloudmail-product</module>
-        <module>cloudmail-ware</module>
-        <module>cloudmail-common</module>
-        <module>cloudmail-gateway</module>
+        <module>cloudmall-coupon</module>
+        <module>cloudmall-member</module>
+        <module>cloudmall-order</module>
+        <module>cloudmall-product</module>
+        <module>cloudmall-ware</module>
+        <module>cloudmall-common</module>
+        <module>cloudmall-gateway</module>
         <module>renren-fast</module>
         <module>renren-generator</module>
+        <module>cloudmall-third-party</module>
     </modules>
 
     <properties>
@@ -39,7 +40,20 @@
         <spring-boot.version>3.2.11</spring-boot.version>
         <spring-cloud.version>2023.0.3</spring-cloud.version>
         <spring-cloud-alibaba.version>2023.0.1.2</spring-cloud-alibaba.version>
+        <aliyun-sdk-oss.version>3.17.4</aliyun-sdk-oss.version>
+        <jaxb-api.version>2.3.1</jaxb-api.version>
+        <sts20150401.version>1.1.6</sts20150401.version>
+        <jaxb-runtime.version>2.3.3</jaxb-runtime.version>
+        <activation.version>1.1.1</activation.version>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <dependencyManagement>
         <dependencies>
@@ -50,6 +64,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
@@ -57,6 +72,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
             <dependency>
                 <groupId>com.alibaba.cloud</groupId>
                 <artifactId>spring-cloud-alibaba-dependencies</artifactId>
@@ -64,15 +80,47 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
                 <version>${mybatis-plus.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.mysql</groupId>
                 <artifactId>mysql-connector-j</artifactId>
                 <version>${mysql.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.aliyun.oss</groupId>
+                <artifactId>aliyun-sdk-oss</artifactId>
+                <version>${aliyun-sdk-oss.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${jaxb-api.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.activation</groupId>
+                <artifactId>activation</artifactId>
+                <version>${activation.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <version>${jaxb-runtime.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>sts20150401</artifactId>
+                <version>${sts20150401.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

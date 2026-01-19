@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: cloudmall-gateway
+  cloud:
+    nacos:
+      # 如果配置中心和服务发现中心在一台服务器，可以在这里写公共配置
+      discovery:
+        server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:8848}
+        username: nacos
+        password: nacos
+        namespace: f64498e5-740a-4dac-972d-22597d7dc2c1
+      config:
+        server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:8848}
+        username: nacos
+        password: nacos
+        namespace: f64498e5-740a-4dac-972d-22597d7dc2c1
+    gateway:
+      routes:
+        - id: product_route
+          uri: lb://cloudmall-product
+          predicates:
+            - Path=/api/product/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+        - id : third_party_route
+          uri: lb://cloudmall-third-party
+          predicates:
+            - Path=/api/thirdparty/**
+          filters:
+            - RewritePath=/api/thirdparty/(?<segment>.*), /$\{segment}
+        - id: admin_route
+          uri: lb://renren-fast
+          predicates:
+            - Path=/api/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /renren-fast/$\{segment}
+  config:
+    import:
+      - nacos:cloudmall-gateway.yml?refreshEnabled=true
+server:
+  port: 20000
