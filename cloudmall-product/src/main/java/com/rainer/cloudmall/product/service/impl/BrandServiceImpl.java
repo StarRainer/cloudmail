@@ -1,16 +1,16 @@
 package com.rainer.cloudmall.product.service.impl;
 
-import org.springframework.stereotype.Service;
-import java.util.Map;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.rainer.cloudmall.common.utils.PageUtils;
 import com.rainer.cloudmall.common.utils.Query;
-
 import com.rainer.cloudmall.product.dao.BrandDao;
 import com.rainer.cloudmall.product.entity.BrandEntity;
 import com.rainer.cloudmall.product.service.BrandService;
+import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 
 @Service("brandService")
@@ -18,9 +18,14 @@ public class BrandServiceImpl extends ServiceImpl<BrandDao, BrandEntity> impleme
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
+        String key = (String) params.get("key");
+
         IPage<BrandEntity> page = this.page(
                 new Query<BrandEntity>().getPage(params),
-                new QueryWrapper<BrandEntity>()
+                new LambdaQueryWrapper<BrandEntity>()
+                        .eq(key.matches("^\\d+$"), BrandEntity::getBrandId, key)
+                        .or()
+                        .like(BrandEntity::getName, key)
         );
 
         return new PageUtils(page);

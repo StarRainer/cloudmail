@@ -26,8 +26,12 @@ import com.rainer.cloudmall.common.utils.PageUtils;
 @RestController
 @RequestMapping("product/categorybrandrelation")
 public class CategoryBrandRelationController {
-    @Autowired
-    private CategoryBrandRelationService categoryBrandRelationService;
+
+    private final CategoryBrandRelationService categoryBrandRelationService;
+
+    public CategoryBrandRelationController(CategoryBrandRelationService categoryBrandRelationService) {
+        this.categoryBrandRelationService = categoryBrandRelationService;
+    }
 
     /**
      * 列表

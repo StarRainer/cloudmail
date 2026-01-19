@@ -34,9 +34,7 @@ public class BrandController {
      */
     @RequestMapping("/list")
     public Result list(@RequestParam Map<String, Object> params){
-        PageUtils page = brandService.queryPage(params);
-
-        return Result.ok().put("page", page);
+        return Result.ok().put("page", brandService.queryPage(params));
     }
 
 

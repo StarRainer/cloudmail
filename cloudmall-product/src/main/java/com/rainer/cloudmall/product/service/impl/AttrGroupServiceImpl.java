@@ -37,7 +37,7 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
                 new LambdaQueryWrapper<AttrGroupEntity>()
                         .eq(catelogId != 0, AttrGroupEntity::getCatelogId, catelogId)
                         .and(StringUtils.hasText(key), object ->
-                                object.eq(key.matches("^\\d*$"), AttrGroupEntity::getAttrGroupId, key).or().like(AttrGroupEntity::getAttrGroupName, key)
+                                object.eq(key.matches("^\\d+$"), AttrGroupEntity::getAttrGroupId, key).or().like(AttrGroupEntity::getAttrGroupName, key)
                         )
         ));
     }
