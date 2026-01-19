@@ -19,13 +19,17 @@
       </el-table-column>
       <el-table-column prop="name" header-align="center" align="center" label="品牌名">
       </el-table-column>
-      <el-table-column prop="logo" header-align="center" align="center" label="品牌logo地址">
-      </el-table-column>
+      <!-- <el-table-column prop="logo" header-align="center" align="center" label="品牌logo地址">
+        <template slot-scope="scope">
+          <el-image style="width: 100px; height: 100px" :src="scope.row.logo" :fit="fit"></el-image>
+        </template>
+      </el-table-column> -->
       <el-table-column prop="descript" header-align="center" align="center" label="介绍">
       </el-table-column>
       <el-table-column prop="showStatus" header-align="center" align="center" label="显示状态">
         <template slot-scope="scope">
-          <el-switch v-model="scope.row.showStatus" :active-value="1" :inactive-value="0" active-color="#13ce66" inactive-color="#ff4949" @change="updateBrandStatus(scope.row.brandId, scope.row.showStatus)"></el-switch>
+          <el-switch v-model="scope.row.showStatus" :active-value="1" :inactive-value="0" active-color="#13ce66"
+            inactive-color="#ff4949" @change="updateBrandStatus(scope.row.brandId, scope.row.showStatus)"></el-switch>
         </template>
       </el-table-column>
       <el-table-column prop="firstLetter" header-align="center" align="center" label="检索首字母">
@@ -151,7 +155,7 @@ export default {
       this.$http({
         url: this.$http.adornUrl('/product/brand/update'),
         method: 'post',
-        data: this.$http.adornData({brandId, showStatus: showStatus ? 1 : 0})
+        data: this.$http.adornData({ brandId, showStatus: showStatus ? 1 : 0 })
       }).then(({ data }) => {
         if (data && data.code === 200) {
           this.$message({

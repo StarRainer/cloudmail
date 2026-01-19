@@ -1,9 +1,12 @@
 package com.rainer.cloudmall.product.controller;
 
+import com.rainer.cloudmall.common.exception.valid.AddGroup;
+import com.rainer.cloudmall.common.exception.valid.UpdateGroup;
 import com.rainer.cloudmall.product.entity.BrandEntity;
 import com.rainer.cloudmall.product.service.BrandService;
 import com.rainer.cloudmall.common.utils.PageUtils;
 import com.rainer.cloudmall.common.utils.Result;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -30,7 +33,6 @@ public class BrandController {
      * 列表
      */
     @RequestMapping("/list")
-//    @RequiresPermissions("product:brand:list")
     public Result list(@RequestParam Map<String, Object> params){
         PageUtils page = brandService.queryPage(params);
 
@@ -42,7 +44,6 @@ public class BrandController {
      * 信息
      */
     @RequestMapping("/info/{brandId}")
-//    @RequiresPermissions("product:brand:info")
     public Result info(@PathVariable("brandId") Long brandId){
 		BrandEntity brand = brandService.getById(brandId);
 
@@ -53,8 +54,7 @@ public class BrandController {
      * 保存
      */
     @RequestMapping("/save")
-//    @RequiresPermissions("product:brand:save")
-    public Result save(@RequestBody BrandEntity brand){
+    public Result save(@Validated(AddGroup.class) @RequestBody BrandEntity brand){
 		brandService.save(brand);
 
         return Result.ok();
@@ -64,7 +64,7 @@ public class BrandController {
      * 修改
      */
     @RequestMapping("/update")
-    public Result update(@RequestBody BrandEntity brand){
+    public Result update(@Validated(UpdateGroup.class) @RequestBody BrandEntity brand){
 		brandService.updateById(brand);
         return Result.ok();
     }
@@ -73,7 +73,6 @@ public class BrandController {
      * 删除
      */
     @RequestMapping("/delete")
-//    @RequiresPermissions("product:brand:delete")
     public Result delete(@RequestBody Long[] brandIds){
 		brandService.removeByIds(Arrays.asList(brandIds));
 
