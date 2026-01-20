@@ -26,11 +26,12 @@ public class BrandServiceImpl extends ServiceImpl<BrandDao, BrandEntity> impleme
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         String key = (String) params.get("key");
+        boolean isNumber = key.matches("^\\d+$");
 
         IPage<BrandEntity> page = this.page(
                 new Query<BrandEntity>().getPage(params),
                 new LambdaQueryWrapper<BrandEntity>()
-                        .eq(key.matches("^\\d+$"), BrandEntity::getBrandId, key)
+                        .eq(isNumber, BrandEntity::getBrandId, isNumber ? Long.parseLong(key) : key)
                         .or()
                         .like(BrandEntity::getName, key)
         );

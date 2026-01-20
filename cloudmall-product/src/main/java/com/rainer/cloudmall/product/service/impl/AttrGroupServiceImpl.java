@@ -32,12 +32,13 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
     public PageUtils queryPage(Map<String, Object> params, Long catelogId) {
         // SELECT * FROM pms_attr_group WHERE catelog_id = #{catelogId} and (attr_group_id = #{key} OR attr_group_name LIKE '%#{key}%')
         String key = (String) params.get("key");
+        boolean isNumber = key.matches("^\\d+$");
         return new PageUtils(page(
                 new Query<AttrGroupEntity>().getPage(params),
                 new LambdaQueryWrapper<AttrGroupEntity>()
                         .eq(catelogId != 0, AttrGroupEntity::getCatelogId, catelogId)
                         .and(StringUtils.hasText(key), object ->
-                                object.eq(key.matches("^\\d+$"), AttrGroupEntity::getAttrGroupId, key).or().like(AttrGroupEntity::getAttrGroupName, key)
+                                object.eq(isNumber, AttrGroupEntity::getAttrGroupId, isNumber ? Long.parseLong(key) : null).or().like(AttrGroupEntity::getAttrGroupName, key)
                         )
         ));
     }
