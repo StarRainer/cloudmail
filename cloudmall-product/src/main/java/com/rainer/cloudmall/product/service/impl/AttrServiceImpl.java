@@ -19,7 +19,6 @@ import com.rainer.cloudmall.product.service.AttrService;
 import com.rainer.cloudmall.product.service.CategoryService;
 import com.rainer.cloudmall.product.vo.AttrResVo;
 import com.rainer.cloudmall.product.vo.AttrVo;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -58,10 +57,12 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
                 new Query<AttrEntity>().getPage(params),
                 new LambdaQueryWrapper<AttrEntity>()
                         .eq(cateLogId != 0, AttrEntity::getCatelogId, cateLogId)
-                        .eq(AttrEntity::getAttrType,
-                                ProductConstant.AttrType.BASE.getMsg().equalsIgnoreCase(attrType)
-                                        ? ProductConstant.AttrType.BASE.getCode()
-                                        : ProductConstant.AttrType.SALE.getCode())
+                        .eq(
+                                AttrEntity::getAttrType,
+                                "BASE".equalsIgnoreCase(attrType)
+                                ? ProductConstant.AttrType.BASE.getCode()
+                                : ProductConstant.AttrType.SALE.getCode()
+                        )
                         .and(StringUtils.hasLength(key), object ->
                                 object.eq(isNumber, AttrEntity::getAttrId, isNumber ? Long.parseLong(key) : null)
                                         .or().like(AttrEntity::getAttrName, key)
