@@ -32,9 +32,11 @@ public class AttrController {
     /**
      * 列表
      */
-    @GetMapping("/base/list/{catelogId}")
-    public Result list(@RequestParam Map<String, Object> params, @PathVariable("catelogId") Long catelogId) {
-        PageUtils page = attrService.queryPage(params, catelogId);
+    @GetMapping("/{attrType}/list/{catelogId}")
+    public Result list(@RequestParam Map<String, Object> params,
+                       @PathVariable("catelogId") Long catelogId,
+                       @PathVariable("attrType") String attrType) {
+        PageUtils page = attrService.queryPage(params, catelogId, attrType);
         return Result.ok().put("page", page);
     }
 

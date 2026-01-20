@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.rainer.cloudmall.common.constant.ProductConstant;
 import com.rainer.cloudmall.common.utils.PageUtils;
 import com.rainer.cloudmall.common.utils.Query;
 import com.rainer.cloudmall.product.dao.AttrDao;
@@ -49,13 +50,17 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
     @Override
     @Transactional(rollbackFor = Exception.class, readOnly = true)
-    public PageUtils queryPage(Map<String, Object> params, Long cateLogId) {
+    public PageUtils queryPage(Map<String, Object> params, Long cateLogId, String attrType) {
         String key = (String) params.get("key");
         boolean isNumber = key != null && key.matches("^\\d+$");
         IPage<AttrEntity> page = page(
                 new Query<AttrEntity>().getPage(params),
                 new LambdaQueryWrapper<AttrEntity>()
                         .eq(cateLogId != 0, AttrEntity::getCatelogId, cateLogId)
+                        .eq(AttrEntity::getAttrType,
+                                ProductConstant.AttrType.BASE.getMsg().equalsIgnoreCase(attrType)
+                                        ? ProductConstant.AttrType.BASE.getCode()
+                                        : ProductConstant.AttrType.SALE.getCode())
                         .and(StringUtils.hasLength(key), object ->
                                 object.eq(isNumber, AttrEntity::getAttrId, isNumber ? Long.parseLong(key) : null)
                                         .or().like(AttrEntity::getAttrName, key)
@@ -78,7 +83,10 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
                             );
                     if (attrAttrgroupRelationEntity != null) {
                         Long attrGroupId = attrAttrgroupRelationEntity.getAttrGroupId();
-                        attrResVo.setGroupName(attrGroupService.getById(attrGroupId).getAttrGroupName());
+                        AttrGroupEntity attrGroupEntity = attrGroupService.getById(attrGroupId);
+                        if (attrGroupEntity != null) {
+                            attrResVo.setGroupName(attrGroupEntity.getAttrGroupName());
+                        }
                     }
                     return attrResVo;
                 })
@@ -139,6 +147,10 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
     public void updateById(AttrVo attrVo) {
         AttrEntity attrEntity = attrMapper.attrVoToAttrEntity(attrVo);
         updateById(attrEntity);
+
+        if (attrEntity.getAttrType() == ProductConstant.AttrType.SALE.getCode()) {
+            return;
+        }
 
         AttrAttrgroupRelationEntity attrAttrgroupRelationEntity = new AttrAttrgroupRelationEntity();
         attrAttrgroupRelationEntity.setAttrId(attrVo.getAttrId());
