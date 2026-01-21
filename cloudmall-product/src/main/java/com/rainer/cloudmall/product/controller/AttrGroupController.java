@@ -3,11 +3,14 @@ package com.rainer.cloudmall.product.controller;
 import com.rainer.cloudmall.common.utils.PageUtils;
 import com.rainer.cloudmall.common.utils.Result;
 import com.rainer.cloudmall.product.entity.AttrGroupEntity;
+import com.rainer.cloudmall.product.service.AttrAttrgroupRelationService;
 import com.rainer.cloudmall.product.service.AttrGroupService;
 import com.rainer.cloudmall.product.service.CategoryService;
+import com.rainer.cloudmall.product.vo.AttrGroupRelationVo;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 
@@ -23,10 +26,13 @@ import java.util.Map;
 public class AttrGroupController {
     private final AttrGroupService attrGroupService;
 
+    private final AttrAttrgroupRelationService attrAttrgroupRelationService;
+
     private final CategoryService categoryService;
 
-    public AttrGroupController(AttrGroupService attrGroupService, CategoryService categoryService) {
+    public AttrGroupController(AttrGroupService attrGroupService, AttrAttrgroupRelationService attrAttrgroupRelationService, CategoryService categoryService) {
         this.attrGroupService = attrGroupService;
+        this.attrAttrgroupRelationService = attrAttrgroupRelationService;
         this.categoryService = categoryService;
     }
 
@@ -43,7 +49,7 @@ public class AttrGroupController {
      * 信息
      */
     @GetMapping("/info/{attrGroupId}")
-    public Result info(@PathVariable("attrGroupId") Long attrGroupId){
+    public Result info(@PathVariable("attrGroupId") Long attrGroupId) {
 		AttrGroupEntity attrGroup = attrGroupService.getById(attrGroupId);
         attrGroup.setCatelogPath(categoryService.getPathLink(attrGroup.getCatelogId()));
         return Result.ok().put("attrGroup", attrGroup);
@@ -53,7 +59,7 @@ public class AttrGroupController {
      * 保存
      */
     @PostMapping("/save")
-    public Result save(@RequestBody AttrGroupEntity attrGroup){
+    public Result save(@RequestBody AttrGroupEntity attrGroup) {
 		attrGroupService.save(attrGroup);
 
         return Result.ok();
@@ -63,7 +69,7 @@ public class AttrGroupController {
      * 修改
      */
     @PutMapping("/update")
-    public Result update(@RequestBody AttrGroupEntity attrGroup){
+    public Result update(@RequestBody AttrGroupEntity attrGroup) {
 		attrGroupService.updateById(attrGroup);
 
         return Result.ok();
@@ -73,10 +79,43 @@ public class AttrGroupController {
      * 删除
      */
     @DeleteMapping("/delete")
-    public Result delete(@RequestBody Long[] attrGroupIds){
+    public Result delete(@RequestBody Long[] attrGroupIds) {
 		attrGroupService.removeByIds(Arrays.asList(attrGroupIds));
-
         return Result.ok();
     }
 
+    /**
+     * 根据组名查属性
+     */
+    @GetMapping("/{attrgroupId}/attr/relation")
+    public Result attrRelation(@PathVariable("attrgroupId") Long attrGroupId) {
+        return Result.ok().put("data", attrGroupService.getAttr(attrGroupId));
+    }
+
+    /**
+     * 删除属性组和属性对应的联系
+     */
+    @DeleteMapping("/attr/relation/delete")
+    public Result deleteRelation(@RequestBody List<AttrGroupRelationVo> attrGroupRelationVo) {
+        attrAttrgroupRelationService.deleteRelationWithAttr(attrGroupRelationVo);
+        return Result.ok();
+    }
+
+    /**
+     * 查询当前属性组没有关联到的属性
+     */
+    @GetMapping("/{attrgroupId}/noattr/relation")
+    public Result noattrRelation(@RequestParam Map<String, Object> params, @PathVariable("attrgroupId") Long attrGroupId) {
+        PageUtils page =  attrGroupService.getAttrWithNoRelation(params, attrGroupId);
+        return Result.ok().put("page", page);
+    }
+
+    /**
+     * 添加属性分组与属性的关联关系
+     */
+    @PostMapping("/attr/relation")
+    public Result addRealtion(@RequestBody List<AttrGroupRelationVo> attrGroupRelationVos) {
+        attrAttrgroupRelationService.saveBatch(attrGroupRelationVos);
+        return Result.ok();
+    }
 }

@@ -3,7 +3,10 @@ package com.rainer.cloudmall.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.rainer.cloudmall.common.utils.PageUtils;
 import com.rainer.cloudmall.product.entity.AttrEntity;
+import com.rainer.cloudmall.product.vo.AttrResVo;
+import com.rainer.cloudmall.product.vo.AttrVo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -15,6 +18,14 @@ import java.util.Map;
  */
 public interface AttrService extends IService<AttrEntity> {
 
-    PageUtils queryPage(Map<String, Object> params);
+    PageUtils queryPage(Map<String, Object> params, Long cateLogId, String attrType);
+
+    void saveAttr(AttrVo attrVo);
+
+    AttrResVo getAttrInfo(Long attrId);
+
+    void updateById(AttrVo attr);
+
+    void deleteAttr(List<Long> attrIds);
 }
 

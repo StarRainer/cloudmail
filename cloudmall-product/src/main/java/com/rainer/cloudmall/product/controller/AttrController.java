@@ -1,19 +1,16 @@
 package com.rainer.cloudmall.product.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
+import com.rainer.cloudmall.common.utils.PageUtils;
 import com.rainer.cloudmall.common.utils.Result;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.rainer.cloudmall.product.entity.AttrEntity;
 import com.rainer.cloudmall.product.service.AttrService;
-import com.rainer.cloudmall.common.utils.PageUtils;
+import com.rainer.cloudmall.product.vo.AttrResVo;
+import com.rainer.cloudmall.product.vo.AttrVo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Map;
 
 
 /**
@@ -26,17 +23,20 @@ import com.rainer.cloudmall.common.utils.PageUtils;
 @RestController
 @RequestMapping("product/attr")
 public class AttrController {
-    @Autowired
-    private AttrService attrService;
+    private final AttrService attrService;
+
+    public AttrController(AttrService attrService) {
+        this.attrService = attrService;
+    }
 
     /**
      * 列表
      */
-    @RequestMapping("/list")
-//    @RequiresPermissions("product:attr:list")
-    public Result list(@RequestParam Map<String, Object> params){
-        PageUtils page = attrService.queryPage(params);
-
+    @GetMapping("/{attrType}/list/{catelogId}")
+    public Result list(@RequestParam Map<String, Object> params,
+                       @PathVariable("catelogId") Long catelogId,
+                       @PathVariable("attrType") String attrType) {
+        PageUtils page = attrService.queryPage(params, catelogId, attrType);
         return Result.ok().put("page", page);
     }
 
@@ -44,10 +44,9 @@ public class AttrController {
     /**
      * 信息
      */
-    @RequestMapping("/info/{attrId}")
-//    @RequiresPermissions("product:attr:info")
+    @GetMapping("/info/{attrId}")
     public Result info(@PathVariable("attrId") Long attrId){
-		AttrEntity attr = attrService.getById(attrId);
+		AttrResVo attr = attrService.getAttrInfo(attrId);
 
         return Result.ok().put("attr", attr);
     }
@@ -55,20 +54,17 @@ public class AttrController {
     /**
      * 保存
      */
-    @RequestMapping("/save")
-//    @RequiresPermissions("product:attr:save")
-    public Result save(@RequestBody AttrEntity attr){
-		attrService.save(attr);
-
+    @PostMapping("/save")
+    public Result save(@RequestBody AttrVo attrVo){
+		attrService.saveAttr(attrVo);
         return Result.ok();
     }
 
     /**
      * 修改
      */
-    @RequestMapping("/update")
-//    @RequiresPermissions("product:attr:update")
-    public Result update(@RequestBody AttrEntity attr){
+    @PutMapping("/update")
+    public Result update(@RequestBody AttrVo attr){
 		attrService.updateById(attr);
 
         return Result.ok();
@@ -77,10 +73,9 @@ public class AttrController {
     /**
      * 删除
      */
-    @RequestMapping("/delete")
-//    @RequiresPermissions("product:attr:delete")
+    @DeleteMapping("/delete")
     public Result delete(@RequestBody Long[] attrIds){
-		attrService.removeByIds(Arrays.asList(attrIds));
+		attrService.deleteAttr(Arrays.asList(attrIds));
 
         return Result.ok();
     }

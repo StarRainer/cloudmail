@@ -16,6 +16,7 @@ import java.util.Map;
 
 
 @Service("brandService")
+@Transactional(rollbackFor = Exception.class, readOnly = true)
 public class BrandServiceImpl extends ServiceImpl<BrandDao, BrandEntity> implements BrandService {
     private final CategoryBrandRelationServiceImpl categoryBrandRelationService;
 
@@ -26,20 +27,21 @@ public class BrandServiceImpl extends ServiceImpl<BrandDao, BrandEntity> impleme
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         String key = (String) params.get("key");
+        boolean isNumber = key != null && key.matches("^\\d+$");
 
         IPage<BrandEntity> page = this.page(
                 new Query<BrandEntity>().getPage(params),
                 new LambdaQueryWrapper<BrandEntity>()
-                        .eq(key.matches("^\\d+$"), BrandEntity::getBrandId, key)
+                        .eq(isNumber, BrandEntity::getBrandId, isNumber ? Long.parseLong(key) : key)
                         .or()
-                        .like(BrandEntity::getName, key)
+                        .like(key != null, BrandEntity::getName, key)
         );
 
         return new PageUtils(page);
     }
 
-    @Transactional(rollbackFor = Exception.class)
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updateCascade(BrandEntity brand) {
         updateById(brand);
         if (StringUtils.hasLength(brand.getName())) {
