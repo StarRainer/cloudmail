@@ -3,12 +3,14 @@ package com.rainer.cloudmall.product.controller;
 import com.rainer.cloudmall.common.utils.PageUtils;
 import com.rainer.cloudmall.common.utils.Result;
 import com.rainer.cloudmall.product.entity.AttrGroupEntity;
+import com.rainer.cloudmall.product.service.AttrAttrgroupRelationService;
 import com.rainer.cloudmall.product.service.AttrGroupService;
 import com.rainer.cloudmall.product.service.CategoryService;
 import com.rainer.cloudmall.product.vo.AttrGroupRelationVo;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 
@@ -24,10 +26,13 @@ import java.util.Map;
 public class AttrGroupController {
     private final AttrGroupService attrGroupService;
 
+    private final AttrAttrgroupRelationService attrAttrgroupRelationService;
+
     private final CategoryService categoryService;
 
-    public AttrGroupController(AttrGroupService attrGroupService, CategoryService categoryService) {
+    public AttrGroupController(AttrGroupService attrGroupService, AttrAttrgroupRelationService attrAttrgroupRelationService, CategoryService categoryService) {
         this.attrGroupService = attrGroupService;
+        this.attrAttrgroupRelationService = attrAttrgroupRelationService;
         this.categoryService = categoryService;
     }
 
@@ -91,8 +96,8 @@ public class AttrGroupController {
      * 删除属性组和属性对应的联系
      */
     @DeleteMapping("/attr/relation/delete")
-    public Result deleteRelation(@RequestBody AttrGroupRelationVo[] attrGroupRelationVo) {
-        attrGroupService.deleteRelationWithAttr(Arrays.asList(attrGroupRelationVo));
+    public Result deleteRelation(@RequestBody List<AttrGroupRelationVo> attrGroupRelationVo) {
+        attrAttrgroupRelationService.deleteRelationWithAttr(attrGroupRelationVo);
         return Result.ok();
     }
 
@@ -103,5 +108,14 @@ public class AttrGroupController {
     public Result noattrRelation(@RequestParam Map<String, Object> params, @PathVariable("attrgroupId") Long attrGroupId) {
         PageUtils page =  attrGroupService.getAttrWithNoRelation(params, attrGroupId);
         return Result.ok().put("page", page);
+    }
+
+    /**
+     * 添加属性分组与属性的关联关系
+     */
+    @PostMapping("/attr/relation")
+    public Result addRealtion(@RequestBody List<AttrGroupRelationVo> attrGroupRelationVos) {
+        attrAttrgroupRelationService.saveBatch(attrGroupRelationVos);
+        return Result.ok();
     }
 }

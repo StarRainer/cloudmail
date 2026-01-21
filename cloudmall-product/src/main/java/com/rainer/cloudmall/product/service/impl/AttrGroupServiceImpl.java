@@ -29,13 +29,8 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
 
     private final AttrAttrgroupRelationService attrAttrgroupRelationService;
 
-    private final AttrMapper attrMapper;
-    private final AttrAttrgroupRelationDao attrAttrgroupRelationDao;
-
-    public AttrGroupServiceImpl(AttrAttrgroupRelationService attrAttrgroupRelationService, AttrMapper attrMapper, AttrAttrgroupRelationDao attrAttrgroupRelationDao) {
+    public AttrGroupServiceImpl(AttrAttrgroupRelationService attrAttrgroupRelationService) {
         this.attrAttrgroupRelationService = attrAttrgroupRelationService;
-        this.attrMapper = attrMapper;
-        this.attrAttrgroupRelationDao = attrAttrgroupRelationDao;
     }
 
     @Override
@@ -75,14 +70,7 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
         return attrAttrgroupRelationService.listAttrByAttrGroupIds(attrIds);
     }
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void deleteRelationWithAttr(List<AttrGroupRelationVo> attrGroupRelationVo) {
-        List<AttrAttrgroupRelationEntity> attrAttrgroupRelationEntities = attrGroupRelationVo.stream()
-                .map(attrMapper::attrGroupRelationVoToAttrAttrgroupRelationEntity)
-                .toList();
-        attrAttrgroupRelationService.removeByAttrIdsAndAttrGroupIds(attrAttrgroupRelationEntities);
-    }
+
 
     @Override
     public PageUtils getAttrWithNoRelation(Map<String, Object> params, Long attrGroupId) {

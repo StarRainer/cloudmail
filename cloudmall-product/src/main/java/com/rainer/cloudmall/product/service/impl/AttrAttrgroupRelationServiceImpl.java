@@ -13,7 +13,9 @@ import com.rainer.cloudmall.product.dao.AttrGroupDao;
 import com.rainer.cloudmall.product.entity.AttrAttrgroupRelationEntity;
 import com.rainer.cloudmall.product.entity.AttrEntity;
 import com.rainer.cloudmall.product.entity.AttrGroupEntity;
+import com.rainer.cloudmall.product.mapper.AttrMapper;
 import com.rainer.cloudmall.product.service.AttrAttrgroupRelationService;
+import com.rainer.cloudmall.product.vo.AttrGroupRelationVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -33,10 +35,18 @@ public class AttrAttrgroupRelationServiceImpl extends ServiceImpl<AttrAttrgroupR
 
     private final AttrAttrgroupRelationDao attrAttrgroupRelationDao;
 
-    public AttrAttrgroupRelationServiceImpl(AttrDao attrDao, AttrGroupDao attrGroupDao, AttrAttrgroupRelationDao attrAttrgroupRelationDao) {
+    private final AttrMapper attrMapper;
+
+    public AttrAttrgroupRelationServiceImpl(
+            AttrDao attrDao,
+            AttrGroupDao attrGroupDao,
+            AttrAttrgroupRelationDao attrAttrgroupRelationDao,
+            AttrMapper attrMapper
+    ) {
         this.attrDao = attrDao;
         this.attrGroupDao = attrGroupDao;
         this.attrAttrgroupRelationDao = attrAttrgroupRelationDao;
+        this.attrMapper = attrMapper;
     }
 
     @Override
@@ -57,12 +67,6 @@ public class AttrAttrgroupRelationServiceImpl extends ServiceImpl<AttrAttrgroupR
     @Override
     public AttrGroupEntity getAttrGroupByAttrGroupId(Long attrGroupId) {
         return attrGroupDao.selectById(attrGroupId);
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void removeByAttrIdsAndAttrGroupIds(List<AttrAttrgroupRelationEntity> attrAttrgroupRelationEntities) {
-        attrAttrgroupRelationDao.deleteBatchRelation(attrAttrgroupRelationEntities);
     }
 
     @Override
@@ -91,6 +95,24 @@ public class AttrAttrgroupRelationServiceImpl extends ServiceImpl<AttrAttrgroupR
                                         .or().like(AttrEntity::getAttrName, key)
                         )
         ));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteRelationWithAttr(List<AttrGroupRelationVo> attrGroupRelationVo) {
+        List<AttrAttrgroupRelationEntity> attrAttrgroupRelationEntities = attrGroupRelationVo.stream()
+                .map(attrMapper::attrGroupRelationVoToAttrAttrgroupRelationEntity)
+                .toList();
+        attrAttrgroupRelationDao.deleteBatchRelation(attrAttrgroupRelationEntities);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void saveBatch(List<AttrGroupRelationVo> attrGroupRelationVos) {
+        attrAttrgroupRelationDao.insert(attrGroupRelationVos.stream()
+                .map(attrMapper::attrGroupRelationVoToAttrAttrgroupRelationEntity)
+                .toList()
+        );
     }
 
 }
