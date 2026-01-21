@@ -10,6 +10,8 @@ import com.rainer.cloudmall.product.entity.BrandEntity;
 import com.rainer.cloudmall.product.entity.CategoryBrandRelationEntity;
 import com.rainer.cloudmall.product.entity.CategoryEntity;
 import com.rainer.cloudmall.product.service.CategoryBrandRelationService;
+import com.rainer.cloudmall.product.utils.ProductMapper;
+import com.rainer.cloudmall.product.vo.BrandResVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,9 +26,12 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
 
     private final CategoryDao categoryDao;
 
-    public CategoryBrandRelationServiceImpl(BrandDao brandDao, CategoryDao categoryDao) {
+    private final ProductMapper productMapper;
+
+    public CategoryBrandRelationServiceImpl(BrandDao brandDao, CategoryDao categoryDao, ProductMapper productMapper) {
         this.brandDao = brandDao;
         this.categoryDao = categoryDao;
+        this.productMapper = productMapper;
     }
 
     @Override
@@ -67,5 +72,14 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
                 new LambdaUpdateWrapper<CategoryBrandRelationEntity>()
                         .eq(CategoryBrandRelationEntity::getCatelogId, catId)
         );
+    }
+
+    @Override
+    public List<BrandResVo> listBrandsByCatId(Long catId) {
+        List<Long> brandIds = list(new LambdaQueryWrapper<CategoryBrandRelationEntity>()
+                .eq(CategoryBrandRelationEntity::getCatelogId, catId)
+        ).stream().map(CategoryBrandRelationEntity::getBrandId).toList();
+        return brandDao.selectByIds(brandIds).stream()
+                .map(productMapper::brandEntityToBrandResVo).toList();
     }
 }
