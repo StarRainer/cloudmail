@@ -483,6 +483,7 @@ export default {
       })
         .then(({ data }) => {
           this.dataResp.memberLevels = data.page.list;
+          console.log("会员等级数据：", this.dataResp.memberLevels); // 建议添加这行调试
         })
         .catch(e => {
           console.log(e);

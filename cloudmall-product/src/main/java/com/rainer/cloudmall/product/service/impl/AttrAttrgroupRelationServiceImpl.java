@@ -101,7 +101,7 @@ public class AttrAttrgroupRelationServiceImpl extends ServiceImpl<AttrAttrgroupR
     @Transactional(rollbackFor = Exception.class)
     public void deleteRelationWithAttr(List<AttrGroupRelationVo> attrGroupRelationVo) {
         List<AttrAttrgroupRelationEntity> attrAttrgroupRelationEntities = attrGroupRelationVo.stream()
-                .map(productMapper::attrGroupRelationVoToAttrAttrgroupRelationEntity)
+                .map(productMapper::attrGroupRealitonVoToAttrAttrgroupRelationEntity)
                 .toList();
         attrAttrgroupRelationDao.deleteBatchRelation(attrAttrgroupRelationEntities);
     }
@@ -110,7 +110,7 @@ public class AttrAttrgroupRelationServiceImpl extends ServiceImpl<AttrAttrgroupR
     @Transactional(rollbackFor = Exception.class)
     public void saveBatch(List<AttrGroupRelationVo> attrGroupRelationVos) {
         saveBatch(attrGroupRelationVos.stream()
-                .map(productMapper::attrGroupRelationVoToAttrAttrgroupRelationEntity)
+                .map(productMapper::attrGroupRealitonVoToAttrAttrgroupRelationEntity)
                 .toList()
         );
     }

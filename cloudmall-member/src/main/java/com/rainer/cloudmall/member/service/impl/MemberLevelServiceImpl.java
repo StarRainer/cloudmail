@@ -24,7 +24,7 @@ public class MemberLevelServiceImpl extends ServiceImpl<MemberLevelDao, MemberLe
                 new Query<MemberLevelEntity>().getPage(params),
                 new LambdaQueryWrapper<MemberLevelEntity>()
                         .eq(isNumber, MemberLevelEntity::getId, isNumber ? Long.parseLong(key) : null)
-                        .or(key != null).like(MemberLevelEntity::getName, key)
+                        .or(isNumber).like(key != null, MemberLevelEntity::getName, key)
         );
 
         return new PageUtils(page);
