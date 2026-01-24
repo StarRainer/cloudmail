@@ -1,19 +1,16 @@
 package com.rainer.cloudmall.ware.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
+import com.rainer.cloudmall.common.utils.PageUtils;
 import com.rainer.cloudmall.common.utils.Result;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.rainer.cloudmall.ware.entity.PurchaseEntity;
 import com.rainer.cloudmall.ware.service.PurchaseService;
-import com.rainer.cloudmall.common.utils.PageUtils;
+import com.rainer.cloudmall.ware.vo.FinishPurchaseVo;
+import com.rainer.cloudmall.ware.vo.MergePurchaseVo;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -26,14 +23,41 @@ import com.rainer.cloudmall.common.utils.PageUtils;
 @RestController
 @RequestMapping("ware/purchase")
 public class PurchaseController {
-    @Autowired
-    private PurchaseService purchaseService;
+    private final PurchaseService purchaseService;
+
+    public PurchaseController(PurchaseService purchaseService) {
+        this.purchaseService = purchaseService;
+    }
+
+    @GetMapping("/unreceive/list")
+    public Result listUnreceivePruchase(@RequestParam Map<String, Object> params){
+        PageUtils page = purchaseService.queryUnreceivePurchasePage(params);
+
+        return Result.ok().put("page", page);
+    }
+
+    @PostMapping("/merge")
+    public Result mergePurchase(@RequestBody MergePurchaseVo mergePurchaseVo) {
+        purchaseService.mergePurchase(mergePurchaseVo);
+        return Result.ok();
+    }
+
+    @PostMapping("/receive")
+    public Result receivePurchase(@RequestBody List<Long> purchaseIds) {
+        purchaseService.receivePurchase(purchaseIds);
+        return Result.ok();
+    }
+
+    @PostMapping("/done")
+    public Result donePurchase(@RequestBody FinishPurchaseVo finishPurchaseVo) {
+        purchaseService.finishPurchase(finishPurchaseVo);
+        return Result.ok();
+    }
 
     /**
      * 列表
      */
     @RequestMapping("/list")
-//    @RequiresPermissions("ware:purchase:list")
     public Result list(@RequestParam Map<String, Object> params){
         PageUtils page = purchaseService.queryPage(params);
 
