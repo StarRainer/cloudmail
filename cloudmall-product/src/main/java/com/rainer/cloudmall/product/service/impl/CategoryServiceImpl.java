@@ -10,12 +10,16 @@ import com.rainer.cloudmall.product.dao.CategoryDao;
 import com.rainer.cloudmall.product.entity.CategoryEntity;
 import com.rainer.cloudmall.product.service.CategoryBrandRelationService;
 import com.rainer.cloudmall.product.service.CategoryService;
+import com.rainer.cloudmall.product.utils.ProductMapper;
+import com.rainer.cloudmall.product.vo.Catelog2Vo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 @Service("categoryService")
@@ -23,9 +27,11 @@ import java.util.*;
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
 
     private final CategoryBrandRelationService categoryBrandRelationService;
+    private final ProductMapper productMapper;
 
-    public CategoryServiceImpl(CategoryBrandRelationService categoryBrandRelationService) {
+    public CategoryServiceImpl(CategoryBrandRelationService categoryBrandRelationService, ProductMapper productMapper) {
         this.categoryBrandRelationService = categoryBrandRelationService;
+        this.productMapper = productMapper;
     }
 
     @Override
@@ -100,6 +106,34 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         return list(new LambdaQueryWrapper<CategoryEntity>()
                 .eq(CategoryEntity::getCatLevel, 1)
         );
+    }
+
+    @Override
+    public Map<String, List<Catelog2Vo>> getCatalogJson() {
+        List<CategoryEntity> categoryEntities = list();
+        Map<Long, List<CategoryEntity>> parentToChildren = categoryEntities
+                .stream()
+                .sorted(Comparator.comparing(CategoryEntity::getSort, Comparator.nullsLast(Comparator.naturalOrder())))
+                .collect(Collectors.groupingBy(
+                        CategoryEntity::getParentCid,
+                        Collectors.toList()
+                ));
+        return categoryEntities.stream().filter(entity -> entity.getCatLevel() == 1)
+                .collect(Collectors.toMap(
+                        entity -> entity.getCatId().toString(),
+                        entity -> parentToChildren
+                                .getOrDefault(entity.getCatId(), Collections.emptyList())
+                                .stream()
+                                .map(catelog2Entity -> productMapper.toCateLog2Vo(
+                                        catelog2Entity,
+                                        parentToChildren
+                                                .getOrDefault(catelog2Entity.getCatId(), Collections.emptyList())
+                                                .stream()
+                                                .map(productMapper::toCatelog3Vo)
+                                                .toList()
+                                ))
+                                .toList()
+                ));
     }
 
     /**
