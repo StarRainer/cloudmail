@@ -1,5 +1,6 @@
 package com.rainer.cloudmall.product.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -11,12 +12,10 @@ import com.rainer.cloudmall.product.service.CategoryBrandRelationService;
 import com.rainer.cloudmall.product.service.CategoryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Service("categoryService")
@@ -83,6 +82,17 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         if (StringUtils.hasLength(category.getName())) {
             categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());
         }
+    }
+
+    @Override
+    public List<CategoryEntity> listNameByIds(List<Long> catalogIds) {
+        if (CollectionUtils.isEmpty(catalogIds)) {
+            return Collections.emptyList();
+        }
+        return list(new LambdaQueryWrapper<CategoryEntity>()
+                .select(CategoryEntity::getName)
+                .in(CategoryEntity::getCatId, catalogIds)
+        );
     }
 
     /**

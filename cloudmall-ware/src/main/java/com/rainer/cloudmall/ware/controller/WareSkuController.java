@@ -1,14 +1,12 @@
 package com.rainer.cloudmall.ware.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
+import com.rainer.cloudmall.common.utils.FeignResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.rainer.cloudmall.ware.entity.WareSkuEntity;
 import com.rainer.cloudmall.ware.service.WareSkuService;
@@ -31,6 +29,11 @@ public class WareSkuController {
 
     public WareSkuController(WareSkuService wareSkuService) {
         this.wareSkuService = wareSkuService;
+    }
+
+    @PostMapping("/hasstock")
+    public FeignResult<Map<Long, Boolean>> checkHasStock(@RequestBody List<Long> skuIds) {
+        return FeignResult.success(wareSkuService.checkHasStockBySkuIds(skuIds));
     }
 
     /**

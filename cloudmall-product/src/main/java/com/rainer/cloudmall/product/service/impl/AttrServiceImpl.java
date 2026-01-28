@@ -20,10 +20,13 @@ import com.rainer.cloudmall.product.vo.AttrResVo;
 import com.rainer.cloudmall.product.vo.AttrVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service("attrService")
@@ -172,6 +175,18 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
                         .in(AttrAttrgroupRelationEntity::getAttrId, attrIds)
         );
         removeByIds(attrIds);
+    }
+
+    @Override
+    public List<Long> listSearchableIdsByIds(List<Long> attrIds) {
+        if (CollectionUtils.isEmpty(attrIds)) {
+            return Collections.emptyList();
+        }
+        return list(new LambdaQueryWrapper<AttrEntity>()
+                .select(AttrEntity::getAttrId)
+                .in(AttrEntity::getAttrId, attrIds)
+                .eq(AttrEntity::getSearchType, 1)
+        ).stream().map(AttrEntity::getAttrId).toList();
     }
 
 }

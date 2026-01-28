@@ -10,8 +10,11 @@ import com.rainer.cloudmall.product.entity.BrandEntity;
 import com.rainer.cloudmall.product.service.BrandService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 
@@ -49,6 +52,17 @@ public class BrandServiceImpl extends ServiceImpl<BrandDao, BrandEntity> impleme
 
             // TODO: 更新其他关联
         }
+    }
+
+    @Override
+    public List<BrandEntity> listNameAndLogoByIds(List<Long> brandIds) {
+        if (CollectionUtils.isEmpty(brandIds)) {
+            return Collections.emptyList();
+        }
+        return list(new LambdaQueryWrapper<BrandEntity>()
+                .select(BrandEntity::getName, BrandEntity::getLogo)
+                .in(BrandEntity::getBrandId, brandIds)
+        );
     }
 
 }

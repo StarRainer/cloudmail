@@ -1,22 +1,27 @@
 package com.rainer.cloudmall.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.rainer.cloudmall.common.constant.ProductConstant;
+import com.rainer.cloudmall.common.exception.ProductPublishException;
 import com.rainer.cloudmall.common.exception.code.CommonCode;
 import com.rainer.cloudmall.common.to.SkuReductionTo;
 import com.rainer.cloudmall.common.to.SpuBoundsTo;
+import com.rainer.cloudmall.common.to.es.SkuEsModel;
+import com.rainer.cloudmall.common.utils.FeignResult;
 import com.rainer.cloudmall.common.utils.PageUtils;
 import com.rainer.cloudmall.common.utils.Query;
 import com.rainer.cloudmall.common.utils.Result;
 import com.rainer.cloudmall.product.dao.SpuInfoDao;
 import com.rainer.cloudmall.product.entity.*;
 import com.rainer.cloudmall.product.feign.CouponFeignService;
-import com.rainer.cloudmall.product.service.SpuInfoDescService;
-import com.rainer.cloudmall.product.service.SpuInfoService;
+import com.rainer.cloudmall.product.feign.SearchFeignService;
+import com.rainer.cloudmall.product.feign.WareFeignService;
+import com.rainer.cloudmall.product.service.*;
 import com.rainer.cloudmall.product.utils.CouponMapper;
 import com.rainer.cloudmall.product.utils.ProductMapper;
+import com.rainer.cloudmall.product.utils.SearchMapper;
 import com.rainer.cloudmall.product.vo.SpuSaveVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +30,10 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -36,25 +44,32 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     private final ProductMapper productMapper;
     private final CouponMapper couponMapper;
     private final SpuInfoDescService spuInfoDescService;
-    private final SpuImagesServiceImpl spuImagesService;
-    private final AttrServiceImpl attrService;
-    private final ProductAttrValueServiceImpl productAttrValueService;
-    private final SkuInfoServiceImpl skuInfoService;
-    private final SkuImagesServiceImpl skuImagesService;
-    private final SkuSaleAttrValueServiceImpl skuSaleAttrValueService;
+    private final SpuImagesService spuImagesService;
+    private final AttrService attrService;
+    private final ProductAttrValueService productAttrValueService;
+    private final SkuInfoService skuInfoService;
+    private final SkuImagesService skuImagesService;
+    private final SkuSaleAttrValueService skuSaleAttrValueService;
     private final CouponFeignService couponFeignService;
+    private final BrandService brandService;
+    private final CategoryService categoryService;
+    private final SearchMapper searchMapper;
+    private final WareFeignService wareFeignService;
+    private final SearchFeignService searchFeignService;
 
     public SpuInfoServiceImpl(
             ProductMapper productMapper,
             CouponMapper couponMapper,
             SpuInfoDescService spuInfoDescService,
-            SpuImagesServiceImpl spuImagesService,
-            AttrServiceImpl attrService,
-            ProductAttrValueServiceImpl productAttrValueService,
-            SkuInfoServiceImpl skuInfoService,
-            SkuImagesServiceImpl skuImagesService,
-            SkuSaleAttrValueServiceImpl skuSaleAttrValueService,
-            CouponFeignService couponFeignService) {
+            SpuImagesService spuImagesService,
+            AttrService attrService,
+            ProductAttrValueService productAttrValueService,
+            SkuInfoService skuInfoService,
+            SkuImagesService skuImagesService,
+            SkuSaleAttrValueService skuSaleAttrValueService,
+            CouponFeignService couponFeignService,
+            BrandService brandService,
+            CategoryService categoryService, SearchMapper searchMapper, WareFeignService wareFeignService, SearchFeignService searchFeignService) {
         this.productMapper = productMapper;
         this.couponMapper = couponMapper;
         this.spuInfoDescService = spuInfoDescService;
@@ -65,6 +80,11 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         this.skuImagesService = skuImagesService;
         this.skuSaleAttrValueService = skuSaleAttrValueService;
         this.couponFeignService = couponFeignService;
+        this.brandService = brandService;
+        this.categoryService = categoryService;
+        this.searchMapper = searchMapper;
+        this.wareFeignService = wareFeignService;
+        this.searchFeignService = searchFeignService;
     }
 
     @Override
@@ -179,6 +199,64 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         Result saveSkuReductionsResult = couponFeignService.saveSkuReductions(skuReductionTos);
         if (saveSkuReductionsResult.getCode() != CommonCode.OK.getCode()) {
             log.error("远程调用保存SKU优惠满减信息失败");
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void publishProduct(Long spuId) {
+        List<SkuInfoEntity> skuInfoEntities = skuInfoService.getSkuInfosBySpuId(spuId);
+        if (CollectionUtils.isEmpty(skuInfoEntities)) {
+            return;
+        }
+
+        List<Long> skuIds = skuInfoEntities.stream().map(SkuInfoEntity::getSkuId).toList();
+        List<Long> brandIds = skuInfoEntities.stream().map(SkuInfoEntity::getBrandId).distinct().toList();
+        List<Long> catalogIds = skuInfoEntities.stream().map(SkuInfoEntity::getCatalogId).distinct().toList();
+
+        List<BrandEntity> brandEntities = brandService.listNameAndLogoByIds(brandIds);
+        List<CategoryEntity> categoryEntities = categoryService.listNameByIds(catalogIds);
+        List<Long> attrIds = productAttrValueService.listAttrIdsBySpuId(spuId);
+        List<Long> searchableAttrIds = attrService.listSearchableIdsByIds(attrIds);
+
+        List<ProductAttrValueEntity> productAttrValueEntities = productAttrValueService.listAttrByAttrIdsAndSpuId(searchableAttrIds, spuId);
+        List<SkuEsModel.Attrs> attrs = searchMapper.toAttrs(productAttrValueEntities);
+
+        FeignResult<Map<Long, Boolean>> feignResult = wareFeignService.checkHasStock(skuIds);
+        Map<Long, Boolean> skuIdToHasStock = skuIds.stream().collect(Collectors.toMap(Function.identity(), skuId -> Boolean.FALSE));
+        if (feignResult.getCode() != CommonCode.OK.getCode()) {
+            log.error("远程调用获取库存信息失败:{}", feignResult.getMsg());
+        } else {
+            if (feignResult.getData() != null) {
+                skuIdToHasStock.putAll(feignResult.getData());
+            }
+        }
+
+        Map<Long, SkuInfoEntity> skuIdToEntity = skuInfoEntities.stream().collect(Collectors.toMap(SkuInfoEntity::getSkuId, Function.identity()));
+        Map<Long, BrandEntity> brandIdToEntity = brandEntities.stream().collect(Collectors.toMap(BrandEntity::getBrandId, Function.identity()));
+        Map<Long, CategoryEntity> categoryIdToEntity = categoryEntities.stream().collect(Collectors.toMap(CategoryEntity::getCatId, Function.identity()));
+
+        List<SkuEsModel> skuEsModels = skuIds.stream().map(skuId -> {
+            SkuInfoEntity skuInfoEntity = skuIdToEntity.get(skuId);
+            return searchMapper.toSkuEsModel(
+                    skuInfoEntity,
+                    brandIdToEntity.get(skuInfoEntity.getBrandId()),
+                    categoryIdToEntity.get(skuInfoEntity.getCatalogId()),
+                    skuIdToHasStock.get(skuId),
+                    attrs
+            );
+        }).toList();
+
+        FeignResult<Void> elasticFeignResult = searchFeignService.publishProduct(skuEsModels);
+        if (elasticFeignResult.getCode() == CommonCode.OK.getCode()) {
+            SpuInfoEntity spuInfoEntity = new SpuInfoEntity();
+            spuInfoEntity.setId(spuId);
+            spuInfoEntity.setPublishStatus(ProductConstant.PublishStatus.PUBLISHED.getCode());
+            spuInfoEntity.setUpdateTime(LocalDateTime.now());
+            updateById(spuInfoEntity);
+        } else {
+            log.error(elasticFeignResult.getMsg());
+            throw new ProductPublishException();
         }
     }
 

@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -50,6 +52,25 @@ public class ProductAttrValueServiceImpl extends ServiceImpl<ProductAttrValueDao
             return;
         }
         saveBatch(productAttrValueEntities);
+    }
+
+    @Override
+    public List<Long> listAttrIdsBySpuId(Long spuId) {
+        return list(new LambdaQueryWrapper<ProductAttrValueEntity>()
+                .select(ProductAttrValueEntity::getAttrId)
+                .eq(ProductAttrValueEntity::getSpuId, spuId)
+        ).stream().map(ProductAttrValueEntity::getAttrId).toList();
+    }
+
+    @Override
+    public List<ProductAttrValueEntity> listAttrByAttrIdsAndSpuId(List<Long> attrIds, Long spuId) {
+        if (CollectionUtils.isEmpty(attrIds)) {
+            return Collections.emptyList();
+        }
+        return list(new LambdaQueryWrapper<ProductAttrValueEntity>()
+                .in(ProductAttrValueEntity::getAttrId, attrIds)
+                .eq(ProductAttrValueEntity::getSpuId, spuId)
+        );
     }
 
 }

@@ -74,4 +74,11 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
                 .in(SkuInfoEntity::getSkuId, skuIds)
         ).stream().collect(Collectors.toMap(SkuInfoEntity::getSkuId, SkuInfoEntity::getSkuName));
     }
+
+    @Override
+    public List<SkuInfoEntity> getSkuInfosBySpuId(Long spuId) {
+        return list(new LambdaQueryWrapper<SkuInfoEntity>()
+                .eq(SkuInfoEntity::getSpuId, spuId)
+        );
+    }
 }

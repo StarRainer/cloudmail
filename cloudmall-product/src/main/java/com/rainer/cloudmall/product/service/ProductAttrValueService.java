@@ -21,5 +21,9 @@ public interface ProductAttrValueService extends IService<ProductAttrValueEntity
     List<ProductAttrValueEntity> listAttrBySpuId(Long spuId);
 
     void updateAttrsBySpuId(Long spuId, List<ProductAttrValueEntity> productAttrValueEntities);
+
+    List<Long> listAttrIdsBySpuId(Long spuId);
+
+    List<ProductAttrValueEntity> listAttrByAttrIdsAndSpuId(List<Long> attrIds, Long spuId);
 }
 
