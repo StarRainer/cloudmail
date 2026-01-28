@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: cloudmall-search
+  elasticsearch:
+    uris: ${ELASTICSEARCH_URIS:http://localhost:9200}
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:8848}
+        username: nacos
+        password: nacos
+        namespace: f64498e5-740a-4dac-972d-22597d7dc2c1
+      config:
+        server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:8848}
+        username: nacos
+        password: nacos
+        namespace: f64498e5-740a-4dac-972d-22597d7dc2c1
+        enabled: false
+server:
+  port: 17000

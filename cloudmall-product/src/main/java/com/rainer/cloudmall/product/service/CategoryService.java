@@ -25,5 +25,7 @@ public interface CategoryService extends IService<CategoryEntity> {
     List<Long> getPathLink(Long catelogId);
 
     void updateCascade(CategoryEntity category);
+
+    List<CategoryEntity> listNameByIds(List<Long> catalogIds);
 }
 

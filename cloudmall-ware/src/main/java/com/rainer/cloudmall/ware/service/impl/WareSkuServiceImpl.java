@@ -7,6 +7,7 @@ import com.rainer.cloudmall.common.utils.FeignResult;
 import com.rainer.cloudmall.common.utils.PageUtils;
 import com.rainer.cloudmall.common.utils.Query;
 import com.rainer.cloudmall.ware.dao.WareSkuDao;
+import com.rainer.cloudmall.ware.dto.StockDTO;
 import com.rainer.cloudmall.ware.entity.PurchaseDetailEntity;
 import com.rainer.cloudmall.ware.entity.WareSkuEntity;
 import com.rainer.cloudmall.ware.feign.ProductFeignService;
@@ -18,9 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -99,6 +102,23 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
             wareSkuEntity.setStockLocked(0);
         });
         wareSkuDao.addStock(wareSkuEntities);
+    }
+
+    @Override
+    public Map<Long, Boolean> checkHasStockBySkuIds(List<Long> skuIds) {
+        if (CollectionUtils.isEmpty(skuIds)) {
+            return Collections.emptyMap();
+        }
+        List<StockDTO> stockDTOS = baseMapper.selectStockBySkuIds(skuIds);
+        if (CollectionUtils.isEmpty(stockDTOS)) {
+            return Collections.emptyMap();
+        }
+        return stockDTOS
+                .stream()
+                .collect(Collectors.toMap(
+                        StockDTO::getSkuId,
+                        dto -> dto.getStockNum() > 0
+                ));
     }
 
 }

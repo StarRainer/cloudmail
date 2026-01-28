@@ -17,4 +17,14 @@ public class ProductConstant {
 
         private final String msg;
     }
+
+    @Getter
+    @AllArgsConstructor
+    public enum PublishStatus {
+        UNPUBLISHED(0, "已下架"),
+        PUBLISHED(1, "已上架");
+        private final int code;
+
+        private final String msg;
+    }
 }

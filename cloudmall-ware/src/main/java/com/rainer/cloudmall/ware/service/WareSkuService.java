@@ -20,5 +20,7 @@ public interface WareSkuService extends IService<WareSkuEntity> {
     PageUtils queryPage(Map<String, Object> params);
 
     void updateStockByPurchase(List<PurchaseDetailEntity> purchaseDetailEntities);
+
+    Map<Long, Boolean> checkHasStockBySkuIds(List<Long> skuIds);
 }
 

@@ -23,6 +23,10 @@ public class FeignResult<T> {
         return new FeignResult<>(code.getCode(), code.getMessage(), null);
     }
 
+    public static <T> FeignResult<T> failure(int code, String message) {
+        return new FeignResult<>(code, message, null);
+    }
+
     private int code;
 
     private String msg;

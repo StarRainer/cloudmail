@@ -21,4 +21,15 @@
         ON DUPLICATE KEY UPDATE
             stock = stock + VALUES(stock)
     </insert>
+    <select id="selectStockBySkuIds" resultType="com.rainer.cloudmall.ware.dto.StockDTO">
+        SELECT
+            sku_id,
+            SUM(stock - stock_locked) AS stockNum
+        FROM wms_ware_sku
+        WHERE sku_id IN 
+        <foreach collection="skuIds" item="skuId" separator="," open="(" close=")">
+            #{skuId}
+        </foreach>
+        GROUP BY sku_id
+    </select>
 </mapper>
