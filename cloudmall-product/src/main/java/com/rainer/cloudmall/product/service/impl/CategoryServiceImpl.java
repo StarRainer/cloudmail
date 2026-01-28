@@ -95,6 +95,13 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         );
     }
 
+    @Override
+    public List<CategoryEntity> getFirstLevel() {
+        return list(new LambdaQueryWrapper<CategoryEntity>()
+                .eq(CategoryEntity::getCatLevel, 1)
+        );
+    }
+
     /**
      * 获取根菜单对应的菜单树
      */
